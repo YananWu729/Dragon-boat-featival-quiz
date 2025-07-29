@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>端午节故事朗读器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2e7d32, #4caf50, #8bc34a);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><path d="M20,50 Q30,20 50,20 Q70,20 80,50 Q70,80 50,80 Q30,80 20,50 Z" fill="none" stroke="%23388e3c" stroke-width="0.5" opacity="0.1"/></svg>');
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 25px;
+            position: relative;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        h1 {
+            font-size: 4.5rem;
+            color: #dce775;
+            text-shadow: 0 3px 15px rgba(46, 125, 50, 0.8);
+            font-weight: 700;
+            letter-spacing: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 2.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 700px;
+            margin: 0 auto;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            border: 3px solid #dce775;
+            animation: slideUp 0.8s ease-out;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .card-header {
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to right, #388e3c, #2e7d32);
+            color: white;
+            position: relative;
+        }
+        
+        .card-header::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8bc34a, #dce775, #8bc34a);
+        }
+        
+        .card-header h2 {
+            font-size: 2.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .card-content {
+            padding: 40px;
+            position: relative;
+        }
+        
+        .story-text {
+            font-size: 1.7rem;
+            line-height: 1.9;
+            color: #2e3d16;
+            position: relative;
+            z-index: 1;
+            padding: 0 20px;
+        }
+        
+        .story-text p {
+            margin-bottom: 35px;
+            position: relative;
+            text-align: justify;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 30px 40px;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .btn {
+            padding: 18px 50px;
+            border: none;
+            border-radius: 60px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn i {
+            font-size: 1.7rem;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .play-btn {
+            background: linear-gradient(to right, #388e3c, #2e7d32);
+            color: white;
+            min-width: 300px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .play-btn:hover {
+            background: linear-gradient(to right, #2e7d32, #1b5e20);
+            box-shadow: 0 8px 25px rgba(56, 142, 60, 0.6);
+        }
+        
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(236, 243, 214, 0.9);
+            padding: 15px 30px;
+            border-radius: 50px;
+            width: 100%;
+            max-width: 500px;
+            font-size: 1.2rem;
+            border: 1px dashed #8bc34a;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            padding: 18px;
+            animation: fadeIn 1.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.8rem;
+            }
+            
+            .card-header h2 {
+                font-size: 1.9rem;
+            }
+            
+            .story-text {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 16px 40px;
+                font-size: 1.3rem;
+                min-width: 260px;
+            }
+        }
+        
+        .highlight {
+            color: #2e7d32;
+            font-weight: bold;
+            font-size: 1.8rem;
+            position: relative;
+            display: inline-block;
+            padding: 0 5px;
+        }
+        
+        .highlight::after {
+            content: "";
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: rgba(220, 231, 117, 0.4);
+            z-index: -1;
+            border-radius: 4px;
+        }
+        
+        .reading-speed {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            background: rgba(236, 243, 214, 0.9);
+            padding: 15px 25px;
+            border-radius: 50px;
+            justify-content: center;
+            border: 1px dashed #8bc34a;
+        }
+        
+        .speed-btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: #388e3c;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #dce775;
+            font-size: 1.1rem;
+        }
+        
+        .speed-btn.active {
+            background: #8bc34a;
+            font-weight: bold;
+            transform: scale(1.05);
+        }
+        
+        .dragon-boat {
+            position: absolute;
+            width: 100px;
+            height: 40px;
+            background: #d32f2f;
+            border-radius: 20px;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        
+        .dragon-boat::before {
+            content: "";
+            position: absolute;
+            top: -30px;
+            left: 40px;
+            width: 20px;
+            height: 30px;
+            background: #dce775;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .dragon-boat-1 {
+            top: 30px;
+            left: 30px;
+            transform: rotate(10deg);
+        }
+        
+        .dragon-boat-2 {
+            bottom: 30px;
+            right: 30px;
+            transform: rotate(-10deg);
+        }
+        
+        .rice-dumpling {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background: #8d6e63;
+            border-radius: 10px;
+            z-index: 0;
+            opacity: 0.1;
+            transform: rotate(45deg);
+        }
+        
+        .rice-dumpling::before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 60px;
+            background: #5d4037;
+            border-radius: 5px;
+        }
+        
+        .rice-dumpling-1 {
+            top: 40%;
+            left: 20%;
+        }
+        
+        .rice-dumpling-2 {
+            bottom: 40%;
+            right: 20%;
+        }
+        
+        .bamboo-leaf {
+            position: absolute;
+            width: 100px;
+            height: 20px;
+            background: #388e3c;
+            border-radius: 10px;
+            z-index: 0;
+            opacity: 0.2;
+            transform: rotate(-20deg);
+        }
+        
+        .bamboo-leaf-1 {
+            top: 20%;
+            left: 10%;
+        }
+        
+        .bamboo-leaf-2 {
+            bottom: 20%;
+            right: 10%;
+            transform: rotate(20deg);
+        }
+        
+        .bamboo-leaf-3 {
+            top: 30%;
+            right: 15%;
+            transform: rotate(30deg);
+        }
+        
+        .bamboo-leaf-4 {
+            bottom: 30%;
+            left: 15%;
+            transform: rotate(-30deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>端午节</h1>
+            <p class="subtitle">屈原的故事</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-book"></i> 屈原的传说</h2>
+                </div>
+                <div class="card-content">
+                    <div class="dragon-boat dragon-boat-1"></div>
+                    <div class="dragon-boat dragon-boat-2"></div>
+                    <div class="rice-dumpling rice-dumpling-1"></div>
+                    <div class="rice-dumpling rice-dumpling-2"></div>
+                    <div class="bamboo-leaf bamboo-leaf-1"></div>
+                    <div class="bamboo-leaf bamboo-leaf-2"></div>
+                    <div class="bamboo-leaf bamboo-leaf-3"></div>
+                    <div class="bamboo-leaf bamboo-leaf-4"></div>
+                    
+                    <div class="story-text">
+                        <p>古代诗人<span class="highlight">屈原 (Qū Yuán)</span> 爱他的国家。坏官把他赶走了。</p>
+                        
+                        <p>屈原太伤心，在<span class="highlight">五月五日</span>跳进江里。</p>
+                        
+                        <p>人们划船找他，往水里扔<span class="highlight">米饭团</span>喂鱼，不让鱼吃屈原的身体。</p>
+                        
+                        <p>后来米饭团变成<span class="highlight">粽子</span>，划船变成<span class="highlight">赛龙舟</span>。</p>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn play-btn" id="playButton">
+                        <i class="fas fa-play-circle"></i> 朗读故事
+                    </button>
+                    <div class="reading-speed">
+                        <span>朗读速度：</span>
+                        <div class="speed-btn active" data-speed="0.8">较慢</div>
+                        <div class="speed-btn" data-speed="1.0">正常</div>
+                    </div>
+                    <div class="volume-control">
+                        <i class="fas fa-volume-up"></i>
+                        <span>点击按钮听中文朗读</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>中华小当家@2025</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 故事文本
+        const storyText = `古代诗人屈原 (Qū Yuán) 爱他的国家。坏官把他赶走了。屈原太伤心，在五月五日跳进江里。人们划船找他，往水里扔米饭团喂鱼，不让鱼吃屈原的身体。后来米饭团变成粽子，划船变成赛龙舟。`;
+        
+        // 获取按钮元素
+        const playButton = document.getElementById('playButton');
+        let isPlaying = false;
+        let currentUtterance = null;
+        let speechRate = 0.8; // 默认较慢语速
+        
+        // 设置朗读速度
+        const speedButtons = document.querySelectorAll('.speed-btn');
+        speedButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                speedButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                speechRate = parseFloat(btn.dataset.speed);
+                
+                // 如果正在朗读，重新开始
+                if (isPlaying) {
+                    window.speechSynthesis.cancel();
+                    playStory();
+                }
+            });
+        });
+        
+        // 播放故事函数
+        function playStory() {
+            // 停止当前正在播放的语音
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            
+            const utterance = new SpeechSynthesisUtterance(storyText);
+            
+            // 设置语言为普通话
+            utterance.lang = 'zh-CN';
+            
+            // 设置语音参数
+            utterance.rate = speechRate; // 使用选择的语速
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // 播放语音
+            window.speechSynthesis.speak(utterance);
+            currentUtterance = utterance;
+            
+            // 更新按钮状态
+            playButton.innerHTML = '<i class="fas fa-stop-circle"></i> 停止朗读';
+            playButton.style.background = 'linear-gradient(to right, #1E90FF, #006400)';
+            isPlaying = true;
+            
+            // 语音结束时恢复按钮状态
+            utterance.onend = () => {
+                playButton.innerHTML = '<i class="fas fa-play-circle"></i> 朗读故事';
+                playButton.style.background = 'linear-gradient(to right, #388e3c, #2e7d32)';
+                isPlaying = false;
+            };
+        }
+        
+        // 按钮点击事件
+        playButton.addEventListener('click', () => {
+            if (isPlaying) {
+                // 停止播放
+                window.speechSynthesis.cancel();
+                playButton.innerHTML = '<i class="fas fa-play-circle"></i> 朗读故事';
+                playButton.style.background = 'linear-gradient(to right, #388e3c, #2e7d32)';
+                isPlaying = false;
+            } else {
+                // 开始播放
+                playStory();
+            }
+        });
+        
+        // 初始化语音
+        function initSpeech() {
+            // 检查浏览器是否支持
+            if (!('speechSynthesis' in window)) {
+                alert('抱歉，您的浏览器不支持文本朗读功能。请使用最新版的Chrome、Edge或Safari浏览器。');
+                playButton.disabled = true;
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', initSpeech);
+    </script>
+</body>
+</html>
